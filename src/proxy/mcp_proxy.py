@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Header
 import httpx
-from tenant_context import TenantContextManager
+from tenant.tenant_context import TenantContextManager
 
 app = FastAPI()
 

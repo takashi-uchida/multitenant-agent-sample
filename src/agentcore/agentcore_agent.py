@@ -1,8 +1,8 @@
 from typing import Dict, Any
-from tenant_context import TenantContext
-from agentcore_gateway import AgentCoreGateway
-from agentcore_gateway_config import AgentCoreGatewayConfig
-from tenant_aware_agent import TenantAwareAgent, AgentConfig
+from tenant.tenant_context import TenantContext
+from .agentcore_gateway import AgentCoreGateway
+from .agentcore_gateway_config import AgentCoreGatewayConfig
+from tenant.tenant_aware_agent import TenantAwareAgent, AgentConfig
 
 class AgentCoreIntegratedAgent(TenantAwareAgent):
     def __init__(self, gateway_config: AgentCoreGatewayConfig):

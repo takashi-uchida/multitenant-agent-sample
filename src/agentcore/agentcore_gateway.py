@@ -1,9 +1,9 @@
 import boto3
 import httpx
 from typing import Dict, Any
-from agentcore_gateway_config import AgentCoreGatewayConfig, ToolTarget
-from agentcore_identity import AgentCoreIdentity
-from tenant_context import TenantContext
+from .agentcore_gateway_config import AgentCoreGatewayConfig, ToolTarget
+from .agentcore_identity import AgentCoreIdentity
+from tenant.tenant_context import TenantContext
 
 class AgentCoreGateway:
     def __init__(self, config: AgentCoreGatewayConfig):

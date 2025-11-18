@@ -1,8 +1,11 @@
 import asyncio
-from agentcore_agent import AgentCoreIntegratedAgent
-from agentcore_gateway_config import AgentCoreGatewayConfig
-from tenant_aware_agent import AgentConfig
-from tenant_context import TenantContext
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+from agentcore.agentcore_agent import AgentCoreIntegratedAgent
+from agentcore.agentcore_gateway_config import AgentCoreGatewayConfig
+from tenant.tenant_aware_agent import AgentConfig
+from tenant.tenant_context import TenantContext
 
 async def main():
     # Gateway設定

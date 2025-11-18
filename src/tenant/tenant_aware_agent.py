@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Dict, Any
-from tenant_context import TenantContext, TenantContextManager
+from .tenant_context import TenantContext, TenantContextManager
 
 @dataclass
 class AgentConfig:

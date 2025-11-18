@@ -1,6 +1,9 @@
 import asyncio
-from tenant_aware_agent import TenantAwareAgent, AgentConfig
-from tenant_context import TenantContext
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+from tenant.tenant_aware_agent import TenantAwareAgent, AgentConfig
+from tenant.tenant_context import TenantContext
 
 async def main():
     agent = TenantAwareAgent()

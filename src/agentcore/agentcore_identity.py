@@ -1,6 +1,6 @@
 import boto3
 from typing import Dict, Optional
-from tenant_context import TenantContext
+from tenant.tenant_context import TenantContext
 
 class AgentCoreIdentity:
     def __init__(self):

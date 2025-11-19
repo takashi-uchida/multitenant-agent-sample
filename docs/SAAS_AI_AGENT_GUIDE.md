@@ -73,7 +73,40 @@ graph TD
     Runtime --> Tools[外部ツール連携<br>(CRM, GitHub, etc)]
 ```
 
-### 2. 具体的な実装ステップ
+### 2. Tenant Aware Agent パターン
+
+SaaSにおけるAIエージェント実装の核心となるデザインパターンが**「Tenant Aware Agent（テナント認識型エージェント）」**です。
+
+これは、共通のアプリケーションロジック（Default Config）を持ちながら、実行時に動的にテナント固有の設定（Tenant Config）を読み込み、振る舞いを上書き（Override）する設計です。
+
+#### 仕組み: Default + Override モデル
+
+```python
+class TenantAwareAgent:
+    def get_agent_config(self, context: TenantContext, agent_name: str) -> AgentConfig:
+        # 1. まずデフォルト設定を取得
+        config = self.default_configs.get(agent_name)
+
+        # 2. テナント固有の設定があれば上書き（Override）
+        if context.tenant_id in self.tenant_configs:
+             tenant_config = self.tenant_configs[context.tenant_id].get(agent_name)
+             if tenant_config:
+                 config = tenant_config
+
+        # 3. モデルアクセス権限の動的ガバナンスチェック
+        if not TenantContextManager.validate_model_access(context, config.model):
+            # 許可されていないモデルが指定されていた場合、安全なデフォルトにフォールバック
+            config.model = context.allowed_models[0]
+
+        return config
+```
+
+**このパターンのメリット:**
+1.  **運用効率**: 基本的な機能更新は「デフォルト設定」のみ修正すれば全テナントに適用される。
+2.  **柔軟性**: 特定のテナント（例: 大口顧客）だけ、専用のプロンプトや高価なモデル（Claude 3 Opus等）を割り当てることが可能。
+3.  **ガバナンス**: コードレベルでモデル利用権限を強制チェックするため、契約外のモデル利用を防げる。
+
+### 3. 具体的な実装ステップ
 
 #### ① 【Security】テナントコンテキストの分離と注入
 **目的**: 「A社のデータはA社しか見れない」をコードレベルで保証する。
@@ -99,10 +132,8 @@ async def handle_request(request, tenant_id):
     return response
 ```
 
-#### ② 【Personalization】テナントごとの「脳」の切り替え
+#### ② 【Personalization】テナントごとの設定登録
 **目的**: 「企業ごとに異なる口調、ルール、使用モデル」を適用する。
-
-共通のコードベースを使いつつ、設定（Configuration）のみをテナントごとに動的に切り替えます。
 
 ```python
 from tenant.tenant_aware_agent import AgentConfig
@@ -117,18 +148,6 @@ agent.register_tenant_agent(
         prompt_template="あなたは{tenant_id}の公的なAIアシスタントです。常に「です・ます」調で、簡潔に回答してください。\nユーザー: {user_message}",
         model="claude-3-sonnet",  # 高精度モデル
         tools=["crm_search", "approval_workflow"] # 専用ツール
-    )
-)
-
-agent.register_tenant_agent(
-    tenant_id="startup-inc",      # スタートアップ向け設定
-    agent_name="assistant",
-    config=AgentConfig(
-        name="assistant",
-        # フレンドリーなプロンプト
-        prompt_template="Hi! {tenant_id}のパートナーAIだよ！一緒に解決しよう！\nユーザー: {user_message}",
-        model="claude-3-haiku",   # 高速・安価モデル
-        tools=["slack_post", "github_issue"]
     )
 )
 ```
